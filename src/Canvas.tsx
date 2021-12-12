@@ -1,16 +1,35 @@
+import {createContext, useState} from 'react'
+import {Element, Rectangle} from './components/Rectangle/Rectangle'
 import {PageContainer} from './PageContainer'
-import {Rectangle} from './components/Rectangle/Rectangle'
 import {Toolbar} from './Toolbar'
+import {atom, useRecoilValue, useSetRecoilState} from 'recoil'
+import { EditProperties } from './EditProperties'
+
+export const selectedElementState = atom<number | null>({
+    key: 'selectedElement',
+    default: null,
+})
+
+export const elementsState = atom<number[]>({
+    key: "element",
+    default: []
+})
 
 function Canvas() {
+    const setSelectedElement = useSetRecoilState(selectedElementState)
+    const elements = useRecoilValue(elementsState)
+
     return (
         <PageContainer
             onClick={() => {
-                console.log('Deselect all elements!')
+                setSelectedElement(null)
             }}
         >
             <Toolbar />
-            <Rectangle />
+            <EditProperties />
+            {elements.map((id) => (
+                <Rectangle key={id} id={id} />
+            ))}
         </PageContainer>
     )
 }
