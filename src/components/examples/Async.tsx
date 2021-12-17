@@ -3,11 +3,15 @@ import {Container, Heading, Text} from '@chakra-ui/layout'
 import {Select} from '@chakra-ui/select'
 import {atom, atomFamily, selector, useRecoilState, useRecoilValue, selectorFamily, useSetRecoilState} from 'recoil'
 import {getWeather} from './fakeAPI'
+import {ErrorBoundary, FallbackProps} from 'react-error-boundary'
+import {Button} from '@chakra-ui/react'
 
 const userState = selectorFamily({
     key: 'user',
     get: (userId: number) => async () => {
         const userData = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`).then((res) => res.json())
+
+        if (userId === 4) throw new Error('User does not exist')
 
         return userData
     },
@@ -15,7 +19,7 @@ const userState = selectorFamily({
 
 const weatherRequestIdState = atomFamily({
     key: 'weatherRequestId',
-    default: 0
+    default: 0,
 })
 
 const useRefetchWeather = (userId: number) => {
@@ -74,6 +78,18 @@ const UserData = ({userId}: {userId: number}) => {
     )
 }
 
+const ErrorFallback = ({error, resetErrorBoundary}: FallbackProps) => {
+    return (
+        <div>
+            <Heading as="h2" size="md" mb={1}>
+                Something went wrong
+            </Heading>
+            <Text>{error.message}</Text>
+            <Button onClick={resetErrorBoundary}>Ok</Button>
+        </div>
+    )
+}
+
 export const Async = () => {
     const [userId, setUserId] = useState<undefined | number>(undefined)
 
@@ -97,11 +113,20 @@ export const Async = () => {
                 <option value="1">User 1</option>
                 <option value="2">User 2</option>
                 <option value="3">User 3</option>
+                <option value="4">User 4</option>
             </Select>
             {userId !== undefined && (
-                <Suspense fallback={<div>Loading...</div>}>
-                    <UserData userId={userId} />
-                </Suspense>
+                <ErrorBoundary
+                    FallbackComponent={ErrorFallback}
+                    onReset={() => {
+                        setUserId(undefined)
+                    }}
+                    resetKeys={[userId]}
+                >
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <UserData userId={userId} />
+                    </Suspense>
+                </ErrorBoundary>
             )}
         </Container>
     )
