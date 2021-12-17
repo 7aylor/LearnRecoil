@@ -8,6 +8,7 @@ import {RecoilRoot} from 'recoil'
 import {Atoms} from './components/examples/Atoms'
 import {Selectors} from './components/examples/Selectors'
 import {Async} from './components/examples/Async'
+import {AtomEffects} from './components/examples/AtomEffects'
 
 ReactDOM.render(
     <RecoilRoot>
@@ -23,6 +24,11 @@ ReactDOM.render(
                     <Route path="/examples/async">
                         <Suspense fallback={<div>Loading...</div>}>
                             <Async />
+                        </Suspense>
+                    </Route>
+                    <Route path="/examples/atomEffects">
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <AtomEffects />
                         </Suspense>
                     </Route>
                     <Route>
